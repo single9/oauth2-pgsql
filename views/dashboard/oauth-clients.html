@@ -1,0 +1,52 @@
+{% extends "frame.html" %}
+
+{% block mainContent %}
+<div class="row">
+  <div class="col-lg-6">
+    <form method="post" action="/user/dashboard/oauth/clients">
+      <button type="submit" class="btn btn-primary">Create New Client</button>
+    </form>
+  </div>
+</div>
+
+<hr>
+
+<h4>{{ titleCreatedClients }}</h4>
+<div class="row">
+  {% for client in createdClients %}
+  <div id="{{ client.client_id }}" class="col-lg-6">
+    <div class="card">
+      <div class="card-body">
+        <!-- <h5 class="card-title"></h5> -->
+
+        <p class="card-text">
+          <ul class="list-unstyled">
+            <li>ID: {{ client.client_id }}</li>
+            <li>Secret: {{ client.client_secret }}</li>
+            <li>Grants: {{ client.grants.join(', ') }}</li>
+            <li>Scope: {{ client.scopes | default('null') }}</li>
+          </ul>
+        </p>
+
+        <a class="btn btn-sm btn-danger" href="#" onclick="deleteClient('{{ client.client_id }}')">Revoke</a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+    <p>No Clients found</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function deleteClient(clientId) {
+    $.ajax('/user/dashboard/oauth/client/' + clientId, {
+      method: 'DELETE',
+    }).done((response) => {
+      console.log(response);
+      $('#' + clientId).fadeOut('fast');
+    });
+  }
+</script>
+{% endblock %}

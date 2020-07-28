@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+
+  db:
+    image: postgres:11-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: auth
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminPassword
+    ports:
+      - 5432:5432

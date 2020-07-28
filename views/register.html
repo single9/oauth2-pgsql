@@ -1,0 +1,62 @@
+{% extends "frame.html" %}
+
+{% block body %}
+<body class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="/"><b>{{ env.SITE_TITLE }}</b></a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+      <div class="card-body login-card-body">
+        {% if success %}
+        <p class="login-box-msg">Congratulations!</p>
+
+        <div class="row mb-3 text-center">
+          <div class="col-12">
+            <p>Your account</p>
+            <p><strong>{{ user.email }}</strong></p>
+            <p>has been successfully created!</p>
+          </div>
+
+          <div class="col-12">
+            <a href="/user/login" class="btn btn-outline-secondary btn-block">Back to Login</a>
+          </div>
+        </div>
+        {% else %}
+        <p class="login-box-msg">Sign Up</p>
+  
+        <form action="/user/register" method="post">
+          <div class="input-group mb-3">
+            <input type="email" class="form-control" name="email" placeholder="Email">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-envelope"></span>
+              </div>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input type="password" class="form-control" name="password" placeholder="Password">
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-lock"></span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <a href="/user/login" class="btn btn-default btn-block">Back</a>
+            </div>
+            <!-- /.col -->
+            <div class="col-8">
+              <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+            </div>
+            <!-- /.col -->
+          </div>
+        </form>
+        {% endif %}
+      </div>
+      <!-- /.login-card-body -->
+    </div>
+  </div>
+{% endblock %}

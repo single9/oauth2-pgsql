@@ -1,0 +1,23 @@
+{% extends "frame.html" %}
+
+{% block mainContent %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">個人資料</h5>
+
+        <p class="card-text">
+          <ul class="list-unstyled">
+            <li>名稱：{{ user.name }}</li>
+            <li>E-Mail：{{ user.email }}</li>
+            <li>Provider：{{ user.provider }}</li>
+          </ul>
+        </p>
+
+        <a href="#" class="card-link">編輯</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

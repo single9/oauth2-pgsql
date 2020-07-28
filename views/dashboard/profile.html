@@ -1,0 +1,102 @@
+{% extends "frame.html" %}
+
+{% block mainContent %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+
+        <!-- Profile Image -->
+        <div class="card card-outline">
+          <div class="card-body box-profile">
+            <div class="text-center">
+              <img class="profile-user-img img-fluid img-circle"
+                   src="{{ user.avatar_url if user.avatar_url !== null else '/dist/img/user2-160x160.jpg' }}"
+                   alt="User profile picture">
+            </div>
+
+            <h3 class="profile-username text-center">{{ user.name }}</h3>
+
+            <p class="text-muted text-center">{{ user.role }}</p>
+
+            <hr>
+
+            <strong><i class="fas fa-envelope"></i> E-Mail</strong>
+
+            <p class="text-muted">
+              {{ user.email }}
+            </p>
+
+            <hr>
+
+            <strong><i class="fas fa-map-marker-alt mr-1"></i> Provider</strong>
+
+            <p class="text-muted">{{ user.provider }}</p>
+          </div>
+          <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+      <div class="col-md-9">
+        <div class="card">
+          <div id="update-overlay" class="overlay d-none">
+            <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+          </div>
+
+          <div class="card-header p-2">
+            <ul class="nav nav-pills">
+              <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">活動</a></li>
+              <li class="nav-item"><a class="nav-link" href="#projects" data-toggle="tab">專案列表</a></li>
+              <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">設定</a></li>
+            </ul>
+          </div><!-- /.card-header -->
+    
+          <div class="card-body">
+            <div class="tab-content">
+              <div class="active tab-pane" id="activity">
+                <p>Activity</p>
+              </div>
+
+              <div class="tab-pane" id="projects">
+                <p>Projects</p>
+              </div>
+
+              <div class="tab-pane" id="settings">
+
+                <form action="/user/update" class="form-horizontal" id="update-user-info" method="post">
+                  <div class="form-group row">
+                    <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+                    <div class="col-sm-10">
+                      <input type="email" class="form-control" id="inputName" placeholder="Email" value="{{ user.email }}" disabled>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="inputName" class="col-sm-2 col-form-label">姓名</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="inputName" name="name" placeholder="Name" value="{{ user.name }}">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="inputAvatarUrl" class="col-sm-2 col-form-label">頭像</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="inputAvatarUrl" name="avatarUrl" placeholder="Avatar Url" value="{{ user.avatar_url }}">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="offset-sm-2 col-sm-10">
+                      <button type="submit" class="btn btn-danger">送出修改</button>
+                    </div>
+                  </div>
+                </form>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
