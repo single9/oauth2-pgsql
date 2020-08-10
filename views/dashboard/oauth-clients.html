@@ -1,52 +1,116 @@
 {% extends "frame.html" %}
 
 {% block mainContent %}
-<div class="row">
-  <div class="col-lg-6">
-    <form method="post" action="/user/dashboard/oauth/clients">
-      <button type="submit" class="btn btn-primary">Create New Client</button>
-    </form>
-  </div>
-</div>
-
-<hr>
-
 <h4>{{ titleCreatedClients }}</h4>
 <div class="row">
-  {% for client in createdClients %}
-  <div id="{{ client.client_id }}" class="col-lg-6">
+  <div class="col-md-12">
     <div class="card">
+      <div id="update-overlay" class="overlay d-none">
+        <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+      </div>
+  
+      <div class="card-header p-2">
+        <ul class="nav nav-pills">
+          <li class="nav-item"><a class="nav-link active" href="#authorized-apps" data-toggle="tab">已授權服務</a></li>
+          <li class="nav-item"><a class="nav-link" href="#oauth-clients" data-toggle="tab">OAuth2 應用授權</a></li>
+          <li class="nav-item"><a class="nav-link" href="#settings" data-toggle="tab">建立與設定</a></li>
+        </ul>
+      </div><!-- /.card-header -->
+  
       <div class="card-body">
-        <!-- <h5 class="card-title"></h5> -->
+        <div class="tab-content">
 
-        <p class="card-text">
-          <ul class="list-unstyled">
-            <li>ID: {{ client.client_id }}</li>
-            <li>Secret: {{ client.client_secret }}</li>
-            <li>Grants: {{ client.grants.join(', ') }}</li>
-            <li>Scope: {{ client.scopes | default('null') }}</li>
-          </ul>
-        </p>
+          <div class="active tab-pane" id="authorized-apps">
+            <div class="row">
+              {% for app in allowedClients %}
+              <div id="allowed-{{ app.clientId }}" class="col-lg-3">
+                <div class="card">
+                  <div class="card-body">
+            
+                    <h5 class="card-title">{{ app.clientName }}</h5>
 
-        <a class="btn btn-sm btn-danger" href="#" onclick="deleteClient('{{ client.client_id }}')">Revoke</a>
+                    <p class="card-text">
+                      <ul class="list-unstyled">
+                        <li>建立者: {{ app.clientOwner }}</li>
+                      </ul>
+                    </p>
+            
+                    <a class="btn btn-sm btn-outline-danger" href="#" onclick="deleteApp('{{ app.clientId }}')">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+              <p>尚未有授權的服務。</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="tab-pane" id="oauth-clients">
+            <div class="row">
+              {% for client in createdClients %}
+              <div id="{{ client.client_id }}" class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ client.client_name }}</h5>
+            
+                    <p class="card-text">
+                      <ul class="list-unstyled">
+                        <li>ID: {{ client.client_id }}</li>
+                        <li>Secret: {{ client.client_secret }}</li>
+                        <li>Grants Type: {{ client.grants_type | default('null') }}</li>
+                        <li>Scope: {{ client.scopes | default('null') }}</li>
+                      </ul>
+                    </p>
+            
+                    <a class="btn btn-sm btn-outline-danger" href="#" onclick="deleteClient('{{ client.client_id }}')">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+                <p>尚未建立任何授權應用。</p>
+              {% endfor %}
+            </div>
+          </div>
+  
+          <div class="tab-pane" id="settings">
+            <div class="col-sm-6">
+              <form class="form-horizontal" method="post" action="/user/dashboard/oauth/clients">
+                <div class="form-group row">
+                  <label for="inputName" class="col-sm-2 col-form-label">名稱</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="name" class="form-control" id="inputName" placeholder="應用程式名稱" required>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="grantsType" class="col-sm-2 col-form-label">授權類型</label>
+                  <div class="col-sm-10">
+                    <select class="custom-select" id="grantsType" name="grantsType" required>
+                      <option selected disabled value="">請選擇...</option>
+                      <option value="normal">一般應用</option>
+                      <option value="alias">分身帳號</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label for="inputRedirectUri" class="col-sm-2 col-form-label">授權後轉址</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="redirectUris" class="form-control" id="inputRedirectUri" placeholder="授權後重定向位址(多個網址可用`,`區隔)" required>
+                  </div>
+                </div>
+  
+                <button type="submit" class="btn btn-primary">建立！</button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  {% else %}
-    <p>No Clients found</p>
-  {% endfor %}
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-  function deleteClient(clientId) {
-    $.ajax('/user/dashboard/oauth/client/' + clientId, {
-      method: 'DELETE',
-    }).done((response) => {
-      console.log(response);
-      $('#' + clientId).fadeOut('fast');
-    });
-  }
-</script>
 {% endblock %}

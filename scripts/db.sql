@@ -7,16 +7,9 @@ CREATE TABLE IF NOT EXISTS public.roles
     CONSTRAINT roles_pkey PRIMARY KEY (level)
 );
 
-CREATE SEQUENCE IF NOT EXISTS public.users_id_seq
-    INCREMENT 1
-    START 3
-    MINVALUE 1
-    MAXVALUE 9223372036854775807
-    CACHE 1;
-
 CREATE TABLE IF NOT EXISTS public.users
 (
-    id bigint NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+    id uuid NOT NULL,
     email character varying(150) COLLATE pg_catalog."default" NOT NULL,
     password character varying(100) COLLATE pg_catalog."default" NOT NULL,
     provider character varying(10) COLLATE pg_catalog."default" DEFAULT 'local'::character varying,
@@ -31,21 +24,25 @@ CREATE TABLE IF NOT EXISTS public.users
         REFERENCES public.roles (level) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-        NOT VALID
 );
 
-CREATE INDEX IF NOT EXISTS index_username
+CREATE INDEX IF NOT EXISTS index_users_username
     ON public.users USING btree(email COLLATE pg_catalog."default" ASC NULLS LAST);
+
+CREATE INDEX IF NOT EXISTS index_users_id
+    ON public.users USING btree(id ASC NULLS LAST);
 
 CREATE TABLE IF NOT EXISTS public.clients
 (
     client_id character varying(100) COLLATE pg_catalog."default" NOT NULL,
     client_secret text COLLATE pg_catalog."default" NOT NULL,
-    user_id bigint NOT NULL,
+    user_id uuid NOT NULL,
     grants character varying(50)[] COLLATE pg_catalog."default" NOT NULL,
     redirect_uris text[] COLLATE pg_catalog."default",
     create_time timestamp without time zone DEFAULT now(),
     scope text COLLATE pg_catalog."default",
+    client_name character varying(200) COLLATE pg_catalog."default" NOT NULL,
+    grants_type character varying(30) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT clients_pkey PRIMARY KEY (client_id),
     CONSTRAINT clients_user_id_fkey FOREIGN KEY (user_id)
         REFERENCES public.users (id) MATCH SIMPLE
@@ -59,11 +56,16 @@ CREATE TABLE IF NOT EXISTS public.authorizations
     expires_at timestamp without time zone NOT NULL,
     client_id character varying(100) COLLATE pg_catalog."default" NOT NULL,
     revoked boolean DEFAULT false,
+    user_id uuid NOT NULL,
     CONSTRAINT authorizations_pkey PRIMARY KEY (authorization_code),
     CONSTRAINT authorizations_client_id_fkey FOREIGN KEY (client_id)
         REFERENCES public.clients (client_id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT authorizations_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
         NOT VALID
 );
 
@@ -78,8 +80,19 @@ CREATE TABLE IF NOT EXISTS public.tokens
     refresh_token text COLLATE pg_catalog."default",
     refresh_token_expires_at timestamp without time zone,
     client_id character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    user_id uuid NOT NULL,
     CONSTRAINT tokens_pkey PRIMARY KEY (access_token),
-    CONSTRAINT tokens_refresh_token_key UNIQUE (refresh_token)
+    CONSTRAINT tokens_refresh_token_key UNIQUE (refresh_token),
+    CONSTRAINT tokens_client_id_fkey FOREIGN KEY (client_id)
+        REFERENCES public.clients (client_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID,
+    CONSTRAINT tokens_user_id_fkey FOREIGN KEY (user_id)
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID
 );
 
 CREATE INDEX IF NOT EXISTS index_access_token
@@ -87,7 +100,7 @@ CREATE INDEX IF NOT EXISTS index_access_token
 
 CREATE TABLE IF NOT EXISTS public.user_details
 (
-    user_id bigint NOT NULL,
+    user_id uuid NOT NULL,
     name character varying(50) COLLATE pg_catalog."default",
     gender "char",
     birth timestamp without time zone,
@@ -99,5 +112,4 @@ CREATE TABLE IF NOT EXISTS public.user_details
         REFERENCES public.users (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE CASCADE
-        NOT VALID
 );

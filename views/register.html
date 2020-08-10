@@ -25,6 +25,8 @@
         </div>
         {% else %}
         <p class="login-box-msg">Sign Up</p>
+
+        <p class="text-danger">{{ 'Sign Up failed. Maybe your account has been registered.' if error else '' }}</p>
   
         <form action="/user/register" method="post">
           <div class="input-group mb-3">

@@ -1,7 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 const oauth2Model = require('../models/oauth2.js');
 const router = express.Router();
 
+// enable CORS
+router.use(cors({ origin: '*' }));
 // check oauth token
 router.use(oauth2Model.authenticate());
 

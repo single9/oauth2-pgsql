@@ -43,11 +43,10 @@ app.get('/', (req, res) => {
 
 // controllers
 app.use('/oauth', require('./controllers/oauth2.js'));
-app.use('/client', require('./controllers/client.js'));
-
-// Note that the next router uses middleware. That protects all routes within this middleware
-app.use('/resource', require('./controllers/resource.js'));
 app.use('/user', require('./controllers/user.js'));
+
+// protected resource (access via bearer token)
+app.use('/resource', require('./controllers/resource.js'));
 
 app.all('*', (req, res, next) => {
   next(utils.errorMessageHelper({

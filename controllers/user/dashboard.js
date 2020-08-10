@@ -44,19 +44,25 @@ router.get('/profile', (req, res) => {
 router.route('/oauth/clients')
   .get(async (req, res) => {
     const userId = req.user.id;
-    const createdClients = await userModel.getClientsById(userId);
+    const createdClients = await userModel.getClientsByUserId(userId);
+    const allowedClients = await userModel.getUserAllowedClients(userId);
     // render
     res.cookie('sidebar-nav', 'oauth-clients');
     res.render('dashboard/oauth-clients.html', {
       pageTitle: '授權管理',
       createdClients,
+      allowedClients,
       user: req.user,
     });
   })
   .post(async (req, res, next) => {
     const userId = req.user.id;
+    const body = req.body;
+
     try {
-      await userModel.createClient(userId, req.body.postfix, req.body.grants);
+      // grants: ['client_credentials', 'password', 'authorization_code', 'refresh_token']
+      await userModel.createClient(userId, body);
+      
       res.render('dashboard/success.html', {
         pageTitle: 'Success!',
         message: 'Client created successfully',
@@ -72,6 +78,18 @@ router.delete('/oauth/client/:clientId', async (req, res, next) => {
   const clientId = req.params.clientId;
   try {
     await userModel.deleteClient(clientId);
+    utils.successMessageHelper(res, {
+      message: 'Client deleted successfully',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/oauth/app/:clientId', async (req, res, next) => {
+  const clientId = req.params.clientId;
+  try {
+    await userModel.deleteUserApp(req.user.id, clientId);
     utils.successMessageHelper(res, {
       message: 'Client deleted successfully',
     });

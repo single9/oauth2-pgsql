@@ -22,13 +22,23 @@ const facebookAuthParams = {
   callbackURL: BASE_URL + '/user/login/auth/facebook/callback'
 };
 
+function loginCallbackEndpoint(req, res) {
+  const uri = req.flash('source_uri');
+  res.redirect(uri[0] || loginSuccessPage);
+}
+
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
  
 passport.deserializeUser(async function(userId, done) {
-  const data = await userModel.findUserById(userId);
-  return done(null, data);
+  try {
+    const data = await userModel.findUserById(userId);
+    return done(null, data);
+  } catch (err) {
+    utils.logger.error(err.stack || err);
+    return done(null, false);
+  }
 });
 
 passport.use(
@@ -115,12 +125,11 @@ router.get('/', (req, res) => {
 router.post('/', passport.authenticate('local', {
   failureRedirect: '/user/login',
   failureFlash: true,
-}), async (req, res) => {
+}), async (req, res, next) => {
   // set session
   req.session.user = req.user.id;
-  // redirect to dashboard
-  res.redirect(loginSuccessPage);
-});
+  return next();
+}, loginCallbackEndpoint);
 
 /**
  * @api {GET} /user/login/auth/google Sing in using Google
@@ -142,11 +151,9 @@ router.get('/auth/google',
 
 router.get('/auth/google/callback', 
   passport.authenticate('google', {
-    successRedirect: loginSuccessPage,
-    failureRedirect: '/user/register'
-  }), function(req, res) {
-    res.redirect(loginSuccessPage);
-  });
+    // successRedirect: loginSuccessPage,
+    failureRedirect: '/user/login'
+  }), loginCallbackEndpoint);
 
 
 // Facebook Authorization
@@ -160,10 +167,8 @@ router.get('/auth/facebook',
 
 router.get('/auth/facebook/callback', 
   passport.authenticate('facebook', {
-    successRedirect: loginSuccessPage,
-    failureRedirect: '/user/register'
-  }), function(req, res) {
-    res.redirect(loginSuccessPage);
-  });
+    // successRedirect: loginSuccessPage,
+    failureRedirect: '/user/login'
+  }), loginCallbackEndpoint);
 
 module.exports = router

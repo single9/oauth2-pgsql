@@ -16,9 +16,10 @@ router.post('/', async (req, res) => {
       user: user,
     });
   } catch (err) {
-    utils.logger.error(`${err.stack || err}`);
-    res.status(500).json({
-      error: err
+    utils.logger.error(`${email} ${err.stack || err}`);
+    res.render('register.html', {
+      success: false,
+      error: err.message
     });
   }
 });

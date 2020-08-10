@@ -1,0 +1,53 @@
+{% extends "frame.html" %}
+
+{% block body %}
+<body class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="/"><b>{{ env.SITE_TITLE }}</b></a>
+    </div>
+    <!-- /.login-logo -->
+    {% if message %}
+    <div class="card card-outline card-danger">
+    {% else %}
+    <div class="card">
+    {% endif %}
+      <div class="card-body login-card-body">
+  
+        <div class="text-center">
+          <img class="profile-user-img img-fluid img-circle"
+               src="{{ user.avatar_url if user.avatar_url else '/dist/img/user2-160x160.jpg' }}"
+               alt="User profile picture">
+        </div>
+
+        <div class="text-center m-3">
+          <i class="fas fa-arrow-down"></i>
+        </div>
+
+        <p clas="card-text">授權<strong> {{ client_name }} </strong>取用您在 {{ env.SITE_TITLE }} 的</p>
+        
+        <div class="text-left">
+          <ul>
+            <li>個人公開資訊</li>
+          </ul>
+        </div>
+
+        <form action="/oauth/authorize" method="post">
+          <input type="hidden" name="client_id" value="{{ client_id }}">
+          <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
+          <input type="hidden" name="response_type" value="{{ response_type }}">
+          <input type="hidden" name="grant_type" value="{{ grant_type }}">
+          <input type="hidden" name="state" value="{{ state }}">
+          <div class="row">
+            <!-- /.col -->
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary btn-block">同意授權</button>
+            </div>
+            <!-- /.col -->
+          </div>
+        </form>
+      </div>
+      <!-- /.login-card-body -->
+    </div>
+  </div>
+{% endblock %}
